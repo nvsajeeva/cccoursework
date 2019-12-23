@@ -10,10 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ListAll {
     static final Logger log  = LoggerFactory.getLogger(App.class);
-    public static List<Car>  handleRequest(Request request, Context context) throws ResourceNotFoundException {
+    public static List<String>  handleRequest(Request request, Context context) throws ResourceNotFoundException {
 
         log.debug("HandleRequest is invoked!");
 
@@ -23,10 +24,16 @@ public class ListAll {
         switch(request.getHttpMethod()) {
             case "GET":
                 List<Car> cars = mapper.scan(Car.class, new DynamoDBScanExpression());
+
+                List<String> names = cars
+                        .stream()
+                        .map(x -> x.getName())
+                        .collect(Collectors.toList());
+
                 if(cars==null) {
                     throw new ResourceNotFoundException("Resource not found:"+request.getName());
                 }
-                return cars;
+                return names;
 
 
             default:
